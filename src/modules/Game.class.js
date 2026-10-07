@@ -155,6 +155,67 @@ class Game {
     // wydzielic sobie kolumny w forze
     // przefiltrowac kolumny od 0
     // sprawdzic czy sa takie same
+    let moved = false;
+
+    for (let col = 0; col < 4; col++) {
+      const column = [];
+
+      const oldColumn = [
+        this.board[0][col],
+        this.board[1][col],
+        this.board[2][col],
+        this.board[3][col],
+      ];
+
+      for (let row = 0; row < 4; row++) {
+        column.push(this.board[row][col]);
+      }
+
+      const merged = [];
+
+      const filtered = column.filter((x) => x !== 0);
+
+      let i = 0;
+
+      while (i < filtered.length) {
+        if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
+          this.score += filtered[i] * 2;
+          merged.push(filtered[i] * 2);
+          i += 2;
+        } else {
+          merged.push(filtered[i]);
+          i++;
+        }
+      }
+
+      while (merged.length < 4) {
+        merged.push(0);
+      }
+
+      for (let row = 0; row < 4; row++) {
+        this.board[row][col] = merged[row];
+
+        if (this.board[row][col] !== oldColumn[row]) {
+          moved = true;
+        }
+      }
+    }
+
+    if (moved) {
+      this.addRandomTile();
+
+      const startButton = document.querySelector('button');
+
+      startButton.className = 'button';
+
+      startButton.classList.add('restart');
+
+      startButton.textContent = 'Restart';
+    }
+    this.getScore();
+    this.updateView();
+    this.checkWin();
+    this.checkLose();
   }
 
   // NIE DZIALA
