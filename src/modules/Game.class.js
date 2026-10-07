@@ -40,7 +40,10 @@ class Game {
   }
 
   moveLeft() {
+    let moved = false;
+
     for (let row = 0; row < 4; row++) {
+      const oldRow = [...this.board[row]];
       const currentRow = this.board[row];
       const filtered = currentRow.filter((x) => x !== 0);
 
@@ -49,6 +52,7 @@ class Game {
       for (let i = 0; i < filtered.length; i++) {
         if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
           merged.push(filtered[i] * 2);
+          this.score += filtered[i] * 2;
           i++;
         } else {
           merged.push(filtered[i]);
@@ -59,11 +63,38 @@ class Game {
         merged.push(0);
       }
       this.board[row] = merged;
-      this.updateView();
+
+      for (let i = 0; i < 4; i++) {
+        if (this.board[row][i] !== oldRow[i]) {
+          moved = true;
+        }
+      }
     }
+
+    if (moved) {
+      this.addRandomTile();
+
+      const startButton = document.querySelector('button');
+
+      startButton.className = 'button';
+
+      startButton.classList.add('restart');
+
+      startButton.textContent = 'Restart';
+    }
+    this.getScore();
+    this.updateView();
+    this.checkWin();
+    this.checkLose();
   }
   moveRight() {
+    let moved = false;
+
     for (let row = 0; row < 4; row++) {
+      const oldRow = [...this.board[row]];
+
+      this.board[row].reverse();
+
       const currentRow = this.board[row];
       const filtered = currentRow.filter((x) => x !== 0);
 
@@ -71,32 +102,146 @@ class Game {
 
       for (let i = filtered.length - 1; i >= 0; i--) {
         if (i > 0 && filtered[i] === filtered[i - 1]) {
-          merged.unshift(filtered[i] * 2);
+          merged.push(filtered[i] * 2);
+          this.score += filtered[i] * 2;
           i--;
         } else {
-          merged.unshift(filtered[i]);
+          merged.push(filtered[i]);
         }
       }
 
       while (merged.length < 4) {
         merged.unshift(0);
       }
+
       this.board[row] = merged;
-      this.updateView();
+
+      for (let i = 0; i < 4; i++) {
+        if (this.board[row][i] !== oldRow[i]) {
+          moved = true;
+          break;
+        }
+      }
     }
+    // this.moveLeft();
+
+    // for (let row = 0; row < 4; row++) {
+    //   this.board[row].reverse();
+    // }
+
+    if (moved) {
+      this.addRandomTile();
+
+      const startButton = document.querySelector('button');
+
+      startButton.className = 'button';
+
+      startButton.classList.add('restart');
+
+      startButton.textContent = 'Restart';
+    }
+    this.updateView();
+    this.checkWin();
+    this.checkLose();
+    this.getScore();
   }
-  moveUp() {}
-  moveDown() {}
+
+  // [2,2,2,4]    [2,8,16,32]
+  // [8,2,4,2]
+  // [16,2,4,2]
+  // [32,2,4,2]
+
+  moveUp() {
+    // wydzielic sobie kolumny w forze
+    // przefiltrowac kolumny od 0
+    // sprawdzic czy sa takie same
+  }
+
+  // NIE DZIALA
+
+  moveDown() {
+    let moved = false;
+
+    for (let col = 0; col < 4; col++) {
+      const column = [];
+
+      const oldColumn = [
+        this.board[0][col],
+        this.board[1][col],
+        this.board[2][col],
+        this.board[3][col],
+      ];
+
+      for (let row = 0; row < 4; row++) {
+        column.push(this.board[row][col]);
+      }
+
+      const merged = [];
+
+      const filtered = column.filter((x) => x !== 0);
+
+      let i = filtered.length - 1;
+
+      while (i >= 0) {
+        if (i > 0 && filtered[i] === filtered[i - 1]) {
+          this.score += filtered[i] * 2;
+          merged.unshift(filtered[i] * 2);
+          i -= 2;
+        } else {
+          merged.unshift(filtered[i]);
+          i--;
+        }
+      }
+
+      while (merged.length < 4) {
+        merged.unshift(0);
+      }
+
+      for (let row = 0; row < 4; row++) {
+        this.board[row][col] = merged[row];
+
+        if (this.board[row][col] !== oldColumn[row]) {
+          moved = true;
+        }
+      }
+    }
+
+    if (moved) {
+      this.addRandomTile();
+
+      const startButton = document.querySelector('button');
+
+      startButton.className = 'button';
+
+      startButton.classList.add('restart');
+
+      startButton.textContent = 'Restart';
+    }
+    this.getScore();
+    this.updateView();
+    this.checkWin();
+    this.checkLose();
+  }
 
   /**
    * @returns {number}
    */
-  getScore() {}
+  getScore() {
+    const score = document.querySelector('.game-score');
+
+    score.textContent = this.score;
+  }
 
   /**
    * @returns {number[][]}
    */
-  getState() {}
+  getState() {
+    return {
+      status: this.status,
+      score: this.score,
+      board: this.board,
+    };
+  }
 
   /**
    * Returns the current game status.
@@ -116,20 +261,18 @@ class Game {
    * Starts the game.
    */
   start() {
+    const startMessage = document.querySelector('.message-start');
+
     if (this.status === 'idle') {
       this.status = 'playing';
       this.addRandomTile();
       this.addRandomTile();
-
-      const startButton = document.querySelector('button');
-
-      startButton.className = 'button';
-
-      startButton.classList.add('restart');
-
-      startButton.textContent = 'Restart';
-
       this.updateView();
+      this.getScore();
+
+      if (startMessage) {
+        startMessage.classList.add('hidden');
+      }
     }
   }
 
@@ -151,6 +294,13 @@ class Game {
     this.status = 'playing';
 
     this.updateView();
+    this.getScore();
+
+    const winMessage = document.querySelector('.message-win');
+
+    if (winMessage) {
+      winMessage.className = 'hidden';
+    }
   }
 
   addRandomTile() {
@@ -192,6 +342,31 @@ class Game {
 
       if (value > 0) {
         cell.classList.add(`field-cell--${value}`);
+      }
+    }
+  }
+
+  checkWin() {
+    for (let i = 0; i < 16; i++) {
+      const row = Math.floor(i / 4);
+      const col = i % 4;
+
+      const value = this.board[row][col];
+
+      if (value === 2048) {
+        const winMessage = document.querySelector('.message-win');
+
+        this.status = 'won';
+
+        winMessage.className = 'message-win';
+      }
+    }
+  }
+
+  checkLose() {
+    for (const row of this.board) {
+      if (row.includes(0)) {
+        return;
       }
     }
   }
