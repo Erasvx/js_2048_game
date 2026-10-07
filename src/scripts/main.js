@@ -17,6 +17,10 @@ document.querySelector('.button').addEventListener('click', () => {
 });
 
 document.addEventListener('keydown', (e) => {
+  if (game.getStatus() !== 'playing') {
+    return;
+  }
+
   if (e.key === 'ArrowRight') {
     game.moveRight();
   }

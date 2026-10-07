@@ -420,6 +420,8 @@ class Game {
         this.status = 'won';
 
         winMessage.className = 'message-win';
+
+        return;
       }
     }
   }
@@ -430,6 +432,28 @@ class Game {
         return;
       }
     }
+
+    for (const row of this.board) {
+      for (let i = 0; i < 3; i++) {
+        if (row[i] === row[i + 1]) {
+          return;
+        }
+      }
+    }
+
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 4; col++) {
+        if (this.board[row][col] === this.board[row + 1][col]) {
+          return;
+        }
+      }
+    }
+
+    const loseMessage = document.querySelector('.message-lose');
+
+    this.status = 'lost';
+
+    loseMessage.className = 'message-lose';
   }
 }
 
