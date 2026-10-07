@@ -11,7 +11,11 @@ document.querySelector('.button').addEventListener('click', () => {
     return;
   }
 
-  if (game.getStatus() === 'playing') {
+  if (
+    game.getStatus() === 'playing' ||
+    game.getStatus() === 'lose' ||
+    game.getStatus() === 'win'
+  ) {
     game.restart();
   }
 });

@@ -93,18 +93,16 @@ class Game {
     for (let row = 0; row < 4; row++) {
       const oldRow = [...this.board[row]];
 
-      this.board[row].reverse();
-
       const currentRow = this.board[row];
       const filtered = currentRow.filter((x) => x !== 0);
 
       const merged = [];
 
-      for (let i = filtered.length - 1; i >= 0; i--) {
-        if (i > 0 && filtered[i] === filtered[i - 1]) {
+      for (let i = 0; i < filtered.length; i++) {
+        if (i < filtered.length - 1 && filtered[i] === filtered[i + 1]) {
           merged.push(filtered[i] * 2);
           this.score += filtered[i] * 2;
-          i--;
+          i++;
         } else {
           merged.push(filtered[i]);
         }
@@ -123,11 +121,6 @@ class Game {
         }
       }
     }
-    // this.moveLeft();
-
-    // for (let row = 0; row < 4; row++) {
-    //   this.board[row].reverse();
-    // }
 
     if (moved) {
       this.addRandomTile();
@@ -146,15 +139,7 @@ class Game {
     this.getScore();
   }
 
-  // [2,2,2,4]    [2,8,16,32]
-  // [8,2,4,2]
-  // [16,2,4,2]
-  // [32,2,4,2]
-
   moveUp() {
-    // wydzielic sobie kolumny w forze
-    // przefiltrowac kolumny od 0
-    // sprawdzic czy sa takie same
     let moved = false;
 
     for (let col = 0; col < 4; col++) {
@@ -217,8 +202,6 @@ class Game {
     this.checkWin();
     this.checkLose();
   }
-
-  // NIE DZIALA
 
   moveDown() {
     let moved = false;
@@ -359,8 +342,14 @@ class Game {
 
     const winMessage = document.querySelector('.message-win');
 
+    const loseMessage = document.querySelector('.message-lose');
+
     if (winMessage) {
-      winMessage.className = 'hidden';
+      winMessage.className = 'message-win hidden';
+    }
+
+    if (loseMessage) {
+      loseMessage.className = 'message-lose hidden';
     }
   }
 
@@ -417,9 +406,11 @@ class Game {
       if (value === 2048) {
         const winMessage = document.querySelector('.message-win');
 
-        this.status = 'won';
+        this.status = 'win';
 
-        winMessage.className = 'message-win';
+        if (winMessage) {
+          winMessage.className = 'message-win';
+        }
 
         return;
       }
@@ -451,9 +442,11 @@ class Game {
 
     const loseMessage = document.querySelector('.message-lose');
 
-    this.status = 'lost';
+    this.status = 'lose';
 
-    loseMessage.className = 'message-lose';
+    if (loseMessage) {
+      loseMessage.className = 'message-lose';
+    }
   }
 }
 
